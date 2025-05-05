@@ -10,6 +10,7 @@ import { yupResolver } from "@hookform/resolvers/yup";
 import { toast } from "react-toastify";
 import { useNavigate } from "react-router-dom";
 import ReCAPTCHA from "react-google-recaptcha";
+import useUserStore from "../store/useUserStore";
 
 const schema = yup.object({
   username: yup.string().required("Please enter your username"),
@@ -20,6 +21,7 @@ const schema = yup.object({
 });
 
 const Login = () => {
+  const { setUser } = useUserStore();
   const navigate = useNavigate();
   const captchaRef = useRef(null);
   const {
@@ -50,7 +52,11 @@ const Login = () => {
     }
     try {
       const res = await axios.post("/api/login", { ...data, recaptchaToken });
+
       if (res.status === 200) {
+        const user = res.data?.user;
+        console.log(user);
+        setUser(user);
         toast.success(res.data?.message);
         navigate("/");
       }

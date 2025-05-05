@@ -8,6 +8,7 @@ import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import MovieListPage from "./pages/MovieListPage";
 import Favorite from "./pages/Favorite";
+import PrivateRoute from "./components/PrivateRoute";
 function App() {
   return (
     <>
@@ -40,7 +41,11 @@ function App() {
         />
         <Route
           path="/danh-sach-uu-thich"
-          element={<Favorite></Favorite>}
+          element={
+            <PrivateRoute>
+              <Favorite />
+            </PrivateRoute>
+          }
         ></Route>
       </Routes>
       <ToastContainer />
