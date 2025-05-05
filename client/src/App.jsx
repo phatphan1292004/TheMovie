@@ -7,6 +7,7 @@ import MovieDetail from "./pages/MovieDetail";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import MovieListPage from "./pages/MovieListPage";
+import Favorite from "./pages/Favorite";
 function App() {
   return (
     <>
@@ -37,6 +38,10 @@ function App() {
           path="/danh-sach/hoat-hinh"
           element={<MovieListPage title="Anime" fetchType="hoat-hinh" />}
         />
+        <Route
+          path="/danh-sach-uu-thich"
+          element={<Favorite></Favorite>}
+        ></Route>
       </Routes>
       <ToastContainer />
     </>

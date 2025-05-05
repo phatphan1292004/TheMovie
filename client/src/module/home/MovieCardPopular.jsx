@@ -21,6 +21,7 @@ const MovieCardPopular = ({
   const timeoutRef = useRef(null);
 
   const handleMouseEnter = () => {
+    console.log("trailer"+ trailer)
     clearTimeout(timeoutRef.current);
     timeoutRef.current = setTimeout(() => {
       if (cardRef.current) {
