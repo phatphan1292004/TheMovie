@@ -1,4 +1,4 @@
-import mongoose from "mongoose";
+const mongoose = require("mongoose");
 
 const movieSchema = new mongoose.Schema({
   title: String,
@@ -24,4 +24,5 @@ const favoriteSchema = new mongoose.Schema({
   },
 });
 
-export default mongoose.model("Favorite", favoriteSchema);
+module.exports = mongoose.model("Favorite", favoriteSchema);
+

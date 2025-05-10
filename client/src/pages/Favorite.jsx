@@ -1,36 +1,12 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Layout from "../components/layout/Layout";
 import { Link } from "react-router-dom";
-import InputField from "../components/input/InputField";
 import { useForm } from "react-hook-form";
-import * as yup from "yup";
-import { yupResolver } from "@hookform/resolvers/yup";
 import { toast } from "react-toastify";
+import AddFavoriteModal from "../components/modal/AddFavoriteModal";
+import axios from "axios";
 const Favorite = () => {
-  const [collections, setCollections] = useState([
-    {
-      name: "Anime",
-      movies: [
-        {
-          title: "Naruto",
-          img: "https://i.imgur.com/YOJ6Flt.jpg",
-          slug: "naruto",
-        },
-        { title: "AOT", img: "https://i.imgur.com/HsBGJqe.jpg", slug: "aot" },
-      ],
-    },
-    {
-      name: "Hành động",
-      movies: [
-        {
-          title: "John Wick",
-          img: "https://i.imgur.com/nNxN9vF.jpg",
-          slug: "john-wick",
-        },
-      ],
-    },
-  ]);
-
+  const [collections, setCollections] = useState([]);
   const [openCollections, setOpenCollections] = useState({});
   const [newCollectionName, setNewCollectionName] = useState("");
   const [showForm, setShowForm] = useState(false);
@@ -42,18 +18,62 @@ const Favorite = () => {
     }));
   };
 
-  const handleAddCollection = (e) => {
-    e.preventDefault();
-    const name = newCollectionName.trim();
-    if (!name) return;
-    if (collections.find((c) => c.name === name)) {
-      alert("Bộ sưu tập đã tồn tại!");
-      return;
+  const handleAddCollection = async (data) => {
+    try {
+      const name = data.colection_name.trim();
+      if (!name) {
+        toast.error("Vui lòng nhập tên bộ sưu tập!");
+        return;
+      }
+
+      const user = JSON.parse(localStorage.getItem("user"));
+      if (!user?.id) {
+        toast.error("Không tìm thấy thông tin người dùng.");
+        return;
+      }
+
+      const res = await axios.post(`/api/favorites/${user.id}/collections`, {
+        name,
+      });
+
+      const result = res.data;
+
+      if (!result || !result.favorite) {
+        toast.error("Lỗi không xác định từ server.");
+        return;
+      }
+
+      setCollections(result.favorite.collections);
+      setShowForm(false);
+      reset();
+      toast.success("Đã thêm bộ sưu tập!");
+    } catch (error) {
+      console.error("Lỗi:", error);
+      toast.error(error?.response?.data?.message || "Lỗi kết nối tới server");
     }
-    setCollections([...collections, { name, movies: [] }]);
-    setNewCollectionName("");
-    setShowForm(false); // ẩn form sau khi thêm
   };
+
+  useEffect(() => {
+    const fetchCollections = async () => {
+      const user = JSON.parse(localStorage.getItem("user"));
+      if (!user?.id) {
+        toast.error("Không tìm thấy người dùng.");
+        return;
+      }
+  
+      try {
+        const res = await axios.get(`/api/favorites/${user.id}/collections`);
+        setCollections(res.data.collections || []);
+      } catch (err) {
+        console.error("Lỗi khi tải collections:", err);
+        toast.error("Không thể tải bộ sưu tập từ server.");
+      }
+    };
+  
+    fetchCollections();
+  }, []);
+  
+  console.log(collections);
   const newReleases = [
     {
       title: "Oppenheimer",
@@ -74,6 +94,7 @@ const Favorite = () => {
 
   const {
     control,
+    reset,
     handleSubmit,
     formState: { errors, isValid, isSubmitting, isSubmitted },
   } = useForm({
@@ -138,7 +159,7 @@ const Favorite = () => {
         </div>
 
         {/* RIGHT: Phim mới ra mắt */}
-        <div className="w-[400px] bg-[#1f2937] rounded p-6 text-white shadow-md h-fit sticky top-[120px]">
+        {/* <div className="w-[400px] bg-[#1f2937] rounded p-6 text-white shadow-md h-fit sticky top-[120px]">
           <h4 className="text-lg font-semibold mb-4">Phim mới ra mắt</h4>
           <div className="space-y-4">
             {newReleases.map((movie, index) => (
@@ -154,47 +175,17 @@ const Favorite = () => {
               </div>
             ))}
           </div>
-        </div>
+        </div> */}
 
         {/* MODAL FORM: Overlay thêm bộ sưu tập */}
         {showForm && (
-          <div
-            className="fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center z-50"
-            onClick={() => setShowForm(false)}
-          >
-            <div
-              className="bg-[#1f2937] p-6 rounded w-full max-w-md text-white shadow-lg"
-              onClick={(e) => e.stopPropagation()}
-            >
-              <h4 className="text-xl font-semibold mb-4">Add your favorites</h4>
-              <form onSubmit={handleAddCollection}>
-                <InputField
-                  control={control}
-                  label="Name of your Favorite"
-                  defaultValue=""
-                  id="colection_name"
-                  placeholder="Ex: Anime, Action"
-                  name="colection_name"
-                />
-
-                <div className="flex mt-4 gap-2">
-                  <button
-                    type="submit"
-                    className="w-full bg-primary hover:bg-purple-700 text-white py-2 rounded transition"
-                  >
-                    Add
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => setShowForm(false)}
-                    className="w-full bg-gray-600 hover:bg-gray-500 text-white py-2 rounded transition"
-                  >
-                    Cancel
-                  </button>
-                </div>
-              </form>
-            </div>
-          </div>
+          <AddFavoriteModal
+            handleSubmit={handleSubmit}
+            show={showForm}
+            setShow={setShowForm}
+            control={control}
+            handleAddCollection={handleAddCollection}
+          />
         )}
       </div>
     </Layout>
