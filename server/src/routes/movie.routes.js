@@ -2,7 +2,7 @@ const express = require("express");
 const router = express.Router();
 const axios = require("axios");
 const NodeCache = require("node-cache");
-const cache = new NodeCache({ stdTTL: 300 }); 
+const cache = new NodeCache({ stdTTL: 900 }); 
 
 
 const BASE_URL = "https://phimapi.com";

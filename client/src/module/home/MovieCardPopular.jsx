@@ -2,6 +2,7 @@ import { useState, useRef } from "react";
 import HoverCardPreview from "./HoverCardPreview";
 import ReactDOM from "react-dom";
 import { Link } from "react-router-dom";
+import { getMovieDetailBySlug } from "../../axios/movieapi";
 
 const MovieCardPopular = ({
   title,
@@ -11,36 +12,48 @@ const MovieCardPopular = ({
   rating,
   heightImg,
   genres = [],
-  trailer,
   slug,
 }) => {
   const [showPreview, setShowPreview] = useState(false);
   const [alignRight, setAlignRight] = useState(false);
-  const [cardPosition, setCardPosition] = useState(null); // Lưu vị trí của card
+  const [cardPosition, setCardPosition] = useState(null);
+  const [trailer, setTrailer] = useState(null);
   const cardRef = useRef(null);
   const timeoutRef = useRef(null);
 
   const handleMouseEnter = () => {
-    console.log("trailer"+ trailer)
     clearTimeout(timeoutRef.current);
-    timeoutRef.current = setTimeout(() => {
+    timeoutRef.current = setTimeout(async () => {
       if (cardRef.current) {
-        const rect = cardRef.current.getBoundingClientRect(); // Lấy vị trí của card
-        setCardPosition(rect); // Cập nhật vị trí của card
+        const rect = cardRef.current.getBoundingClientRect();
+        setCardPosition(rect);
         const viewportWidth = window.innerWidth;
-        const shouldAlignRight = rect.left + 700 > viewportWidth; // Tính toán để căn chỉnh nếu không vừa với viewport
+        const shouldAlignRight = rect.left + 700 > viewportWidth;
         setAlignRight(shouldAlignRight);
       }
+
+      // ❗ Gọi API chi tiết chỉ khi hover
+      if (!trailer) {
+        try {
+          const detail = await getMovieDetailBySlug(slug);
+          const trailerUrl = detail?.movie?.trailer_url || detail?.movie?.trailer || null;
+          setTrailer(trailerUrl);
+        } catch (err) {
+          console.warn("Không lấy được trailer:", slug);
+        }
+      }
+
       setShowPreview(true);
-    }, 1200);
+    }, 1000); // delay hover
   };
 
   const handleMouseLeave = () => {
     clearTimeout(timeoutRef.current);
     timeoutRef.current = setTimeout(() => {
       setShowPreview(false);
-    }, 200); // delay ẩn để tránh giật khi rê chuột qua lại nhanh
+    }, 200);
   };
+
   const imgUrl = image?.includes("https://phimimg.com/")
     ? image
     : `https://phimimg.com/${image}`;
@@ -52,15 +65,12 @@ const MovieCardPopular = ({
       onMouseEnter={handleMouseEnter}
       onMouseLeave={handleMouseLeave}
     >
-      {/* Movie Card */}
       <Link to={`/phim/${slug}`}>
         <div className="p-3 rounded-lg transition text-white cursor-pointer">
           <img
             src={imgUrl}
             alt=""
-            className={`rounded-lg mb-4 object-cover w-full ${
-              heightImg || "h-auto"
-            }`}
+            className={`rounded-lg mb-4 object-cover w-full ${heightImg || "h-auto"}`}
           />
           <h3 className="text-lg font-medium truncate">{title}</h3>
           <div className="flex items-center gap-4 text-sm text-gray-400 mt-1">
@@ -71,7 +81,6 @@ const MovieCardPopular = ({
         </div>
       </Link>
 
-      {/* HoverCardPreview */}
       {showPreview &&
         ReactDOM.createPortal(
           <HoverCardPreview
@@ -84,7 +93,7 @@ const MovieCardPopular = ({
             rating={rating}
             slug={slug}
             genres={genres}
-            cardPosition={cardPosition} // Truyền vị trí vào HoverCardPreview
+            cardPosition={cardPosition}
           />,
           document.body
         )}

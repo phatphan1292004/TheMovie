@@ -1,4 +1,3 @@
-import { Link } from "react-router-dom";
 import Button from "../../components/button/Button";
 
 const HoverCardPreview = ({
@@ -13,32 +12,25 @@ const HoverCardPreview = ({
   cardPosition,
   slug,
 }) => {
-  if (!cardPosition || !videoSrc) return null;
+  if (!cardPosition) return null;
 
   const getEmbedAutoplayURL = (url) => {
-    const id = url.split("v=")[1]?.split("&")[0];
+    const id = url?.split("v=")[1]?.split("&")[0];
     return `https://www.youtube.com/embed/${id}?autoplay=1&mute=1&controls=1&rel=0&modestbranding=1`;
   };
-  console.log(slug);
 
   return (
     <div
-      className={`fixed ${
-        alignRight ? "right-0" : "left-0"
-      } -translate-y-6 w-[500px] bg-black rounded-lg shadow-2xl z-50
+      className={`fixed ${alignRight ? "right-0" : "left-0"} -translate-y-6 w-[500px] bg-black rounded-lg shadow-2xl z-50
         transition-opacity transition-transform duration-500 ease-in-out
-        ${
-          showPreview
-            ? "opacity-100 scale-100 pointer-events-auto"
-            : "opacity-0 scale-95 pointer-events-none"
-        }`}
+        ${showPreview ? "opacity-100 scale-100" : "opacity-0 scale-95 pointer-events-none"}`}
       style={{
         top: cardPosition.top - 100,
         left: cardPosition.left + cardPosition.width / 2 - 250,
       }}
     >
       <div className="relative w-full h-[250px] rounded-t-lg overflow-hidden">
-        {showPreview && (
+        {videoSrc && showPreview && (
           <iframe
             src={getEmbedAutoplayURL(videoSrc)}
             className="w-full h-full inset-0"
@@ -47,7 +39,7 @@ const HoverCardPreview = ({
             frameBorder="0"
           />
         )}
-        <div className="absolute bottom-0 left-0 right-0 h-1/2 bg-gradient-to-t from-black/80 to-transparent pointer-events-none" />
+        <div className="absolute bottom-0 left-0 right-0 h-1/2 bg-gradient-to-t from-black/80 to-transparent" />
       </div>
 
       <div className="p-4 text-white">

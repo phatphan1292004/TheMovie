@@ -3,28 +3,15 @@ import {
 } from "../axios/movieapi";
 
 export const enrichMovieList = async (items) => {
-  const movies = await Promise.all(
-    items.map(async (item) => {
-      try {
-        const detail = await getMovieDetailBySlug(item.slug);
-        const movie = detail?.movie;
+  const movies = items.map((item) => ({
+    title: item?.name || item?.title || "No title",
+    image: item?.thumb_url || item?.poster_url || "",
+    year: item?.year || "N/A",
+    duration: item?.time || "",
+    rating: item?.rating || "N/A",
+    genres: item?.category?.map((g) => g.name) || [],
+    slug: item?.slug,
+  }));
 
-        return {
-          title: movie?.name,
-          image: movie?.thumb_url,
-          year: movie?.year,
-          duration: movie?.time,
-          rating: movie?.rating,
-          genres: movie?.category?.map((g) => g.name),
-          trailer: movie?.trailer_url || movie?.trailer || null,
-          slug: item.slug,
-        };
-      } catch (err) {
-        console.warn("❌ Lỗi fetch chi tiết phim:", item.slug);
-        return null;
-      }
-    })
-  );
-
-  return movies.filter(Boolean);
+  return movies.filter((m) => m.slug); 
 };
