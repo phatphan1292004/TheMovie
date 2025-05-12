@@ -8,7 +8,7 @@ import { yupResolver } from "@hookform/resolvers/yup";
 import Button2 from "../components/button/Button2";
 import { toast } from "react-toastify";
 import axios from "axios";
-import { useNavigate } from "react-router-dom";
+import axiosClient from "../axios/axiosClient";
 import OtpPage from "./OtpPage";
 import useSignUpStore from "../store/useSignupStore";
 
@@ -69,7 +69,7 @@ const SignUp = () => {
 
   const handleSignUp = async (data) => {
     try {
-      const res = await axios.post("/api/send-otp", {
+      const res = await axiosClient.post("/send-otp", {
         email: data.email,
       });
 
