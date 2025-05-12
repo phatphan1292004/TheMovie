@@ -11,6 +11,7 @@ import { toast } from "react-toastify";
 import { useNavigate } from "react-router-dom";
 import ReCAPTCHA from "react-google-recaptcha";
 import useUserStore from "../store/useUserStore";
+import axiosClient from "../axios/axiosClient";
 
 const schema = yup.object({
   username: yup.string().required("Please enter your username"),
@@ -51,7 +52,7 @@ const Login = () => {
       return;
     }
     try {
-      const res = await axios.post("/api/login", { ...data, recaptchaToken });
+      const res = await axiosClient.post("/login", { ...data, recaptchaToken });
 
       if (res.status === 200) {
         const user = res.data?.user;
