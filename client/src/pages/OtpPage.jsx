@@ -26,7 +26,7 @@ const OtpPage = () => {
 
       if (res.status === 200) {
         toast.success("Xác thực OTP thành công!");
-        await axios.post("/api/sign-up", formData);
+        await axiosClient.post("/sign-up", formData);
         reset();
         navigate("/login");
       }
