@@ -5,6 +5,8 @@ import useSignupStore from "../store/useSignupStore";
 import axios from "axios";
 import { toast } from "react-toastify";
 import { useNavigate } from "react-router-dom";
+import axiosClient from "../axios/axiosClient";
+
 
 const OtpPage = () => {
   const navigate = useNavigate();
@@ -17,7 +19,7 @@ const OtpPage = () => {
     }
 
     try {
-      const res = await axios.post("/api/verify-otp", {
+      const res = await axiosClient.post("/verify-otp", {
         email: formData.email,
         otp: otp,
       });
