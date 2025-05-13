@@ -78,4 +78,28 @@ router.post("/sign-up", async (req, res) => {
   }
 });
 
+router.post("/reset-password", async (req, res) => {
+  const { email, newPassword } = req.body;
+
+  try {
+    if (!email || !newPassword) {
+      return res.status(400).json({ message: "Thiếu email hoặc mật khẩu mới." });
+    }
+
+    const user = await User.findOne({ email });
+    if (!user) {
+      return res.status(404).json({ message: "Không tìm thấy tài khoản." });
+    }
+
+    const hashedPassword = await bcrypt.hash(newPassword, 10);
+    user.password = hashedPassword;
+    await user.save();
+
+    return res.status(200).json({ message: "Đặt lại mật khẩu thành công!" });
+  } catch (error) {
+    console.error("❌ Lỗi reset-password:", error.message);
+    return res.status(500).json({ message: "Lỗi server" });
+  }
+});
+
 module.exports = router;
