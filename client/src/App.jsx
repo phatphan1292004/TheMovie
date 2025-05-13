@@ -9,6 +9,7 @@ import "react-toastify/dist/ReactToastify.css";
 import MovieListPage from "./pages/MovieListPage";
 import Favorite from "./pages/Favorite";
 import PrivateRoute from "./components/PrivateRoute";
+import OtpPage from "./pages/OtpPage";
 function App() {
   return (
     <>
@@ -16,6 +17,7 @@ function App() {
         <Route path="/" element={<HomePage></HomePage>}></Route>
         <Route path="/login" element={<Login></Login>}></Route>
         <Route path="/sign-up" element={<SignUp></SignUp>}></Route>
+        <Route path="/verify-otp" element={<OtpPage></OtpPage>}></Route>
         <Route path="/phim/:slug" element={<MovieDetail></MovieDetail>}></Route>
         <Route
           path="/danh-sach/phim-moi-cap-nhat"

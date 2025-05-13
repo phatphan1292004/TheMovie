@@ -22,6 +22,8 @@ const schema = yup.object({
 });
 
 const Login = () => {
+  const [email, setEmail] = useState("");
+  const [showModal, setShowModal] = useState(false);
   const { setUser } = useUserStore();
   const navigate = useNavigate();
   const captchaRef = useRef(null);
@@ -45,6 +47,7 @@ const Login = () => {
     }
   }, [errors]);
 
+  //Sign In
   const handleSignIn = async (data) => {
     const recaptchaToken = captchaRef.current?.getValue();
     if (!recaptchaToken) {
@@ -67,6 +70,23 @@ const Login = () => {
       } else {
         toast.error("Login fail");
       }
+    }
+  };
+
+  //ForgotPassword
+  const handleForgotPassword = async () => {
+    try {
+      const res = await axiosClient.post("/send-otp", { email });
+      if (res.status === 200) {
+        toast.success("OTP đã được gửi qua email!");
+        setShowModal(false);
+        // Chuyển sang trang nhập OTP nếu cần
+        navigate("/verify-otp", {
+          state: { email, mode: "forgot-password" },
+        });
+      }
+    } catch (error) {
+      toast.error(error.response?.data?.message || "Gửi OTP thất bại");
     }
   };
   return (
@@ -137,7 +157,14 @@ const Login = () => {
                 />
                 Nhớ đăng nhập
               </label>
-              <a href="#" className="text-sm text-primary hover:underline">
+              <a
+                href="#"
+                onClick={(e) => {
+                  e.preventDefault();
+                  setShowModal(true);
+                }}
+                className="text-sm text-primary hover:underline"
+              >
                 Quên mật khẩu?
               </a>
             </div>
@@ -159,6 +186,37 @@ const Login = () => {
           </p>
         </div>
       </div>
+
+      {showModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center">
+          <div className="bg-white rounded-lg p-6 w-full max-w-sm shadow-lg">
+            <h2 className="text-lg font-bold mb-4 text-gray-800">
+              Quên mật khẩu
+            </h2>
+            <input
+              type="email"
+              placeholder="Nhập email của bạn"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              className="w-full border px-4 py-2 rounded mb-4 text-black"
+            />
+            <div className="flex justify-end gap-3">
+              <button
+                onClick={() => setShowModal(false)}
+                className="px-4 py-2 bg-gray-400 text-white rounded"
+              >
+                Hủy
+              </button>
+              <button
+                onClick={handleForgotPassword}
+                className="px-4 py-2 bg-blue-600 text-white rounded"
+              >
+                Gửi OTP
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </>
   );
 };
