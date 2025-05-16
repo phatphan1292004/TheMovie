@@ -66,7 +66,7 @@ const MovieDetail = () => {
       if (!user?.id || !slug) return;
 
       try {
-        const res = await axios.get(`/api/favorites/${user.id}/collections`);
+        const res = await axiosClient.get(`/favorites/${user.id}/collections`);
         const collections = res.data.collections || [];
 
         const exists = collections.some((c) =>
