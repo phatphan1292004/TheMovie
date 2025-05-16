@@ -12,8 +12,11 @@ import EpisodeList from "../module/details/EpisodeList";
 import SelectCollectionModal from "../components/modal/SelectCollectionModal";
 import { toast } from "react-toastify";
 import axios from "axios";
+import ReviewList from "../module/details/ReviewList";
+import axiosClient from "../axios/axiosClient";
 
 const MovieDetail = () => {
+  const [reviews, setReviews] = useState([]);
   const { slug } = useParams();
   const [movie, setMovie] = useState(null);
   const [episodes, setEpisodes] = useState([]);
@@ -61,30 +64,42 @@ const MovieDetail = () => {
     const checkInCollections = async () => {
       const user = JSON.parse(localStorage.getItem("user"));
       if (!user?.id || !slug) return;
-  
+
       try {
         const res = await axios.get(`/api/favorites/${user.id}/collections`);
         const collections = res.data.collections || [];
-  
+
         const exists = collections.some((c) =>
           c.movies.some((m) => m.slug === slug)
         );
-  
+
         setIsFavorite(exists);
       } catch (err) {
         console.error("Lỗi khi kiểm tra yêu thích:", err);
       }
     };
-  
+
     checkInCollections();
   }, [slug]);
-  
 
+  useEffect(() => {
+    const fetchReviews = async () => {
+      try {
+        const res = await axiosClient.post("/review/get-review-slug", { slug });
+        setReviews(res.data);
+      } catch (err) {
+        console.error("❌ Lỗi lấy bình luận:", err);
+      }
+    };
+    if (slug) fetchReviews();
+  }, [slug]);
   if (isLoading) {
     return (
       <div className="fixed inset-0 bg-black/80 z-[9999] flex flex-col items-center justify-center text-primary">
         <div className="w-10 h-10 border-4 border-t-transparent border-primary rounded-full animate-spin mb-4"></div>
-        <p className="text-lg font-semibold opacity-80">Đang tải dữ liệu phim...</p>
+        <p className="text-lg font-semibold opacity-80">
+          Đang tải dữ liệu phim...
+        </p>
       </div>
     );
   }
@@ -114,7 +129,8 @@ const MovieDetail = () => {
                 )}
 
                 <div className="mb-4 mt-20">
-                  <ReviewForm></ReviewForm>
+                  <ReviewForm slug={slug}></ReviewForm>
+                  <ReviewList reviews={reviews} />
                 </div>
               </div>
             </div>

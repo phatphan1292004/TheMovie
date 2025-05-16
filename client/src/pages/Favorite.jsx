@@ -5,6 +5,8 @@ import { useForm } from "react-hook-form";
 import { toast } from "react-toastify";
 import AddFavoriteModal from "../components/modal/AddFavoriteModal";
 import axios from "axios";
+import axiosClient from "../axios/axiosClient";
+
 const Favorite = () => {
   const [collections, setCollections] = useState([]);
   const [openCollections, setOpenCollections] = useState({});
@@ -32,7 +34,7 @@ const Favorite = () => {
         return;
       }
 
-      const res = await axios.post(`/api/favorites/${user.id}/collections`, {
+      const res = await axiosClient.post(`/favorites/${user.id}/collections`, {
         name,
       });
 
@@ -62,7 +64,7 @@ const Favorite = () => {
       }
   
       try {
-        const res = await axios.get(`/api/favorites/${user.id}/collections`);
+        const res = await axiosClient.get(`/favorites/${user.id}/collections`);
         setCollections(res.data.collections || []);
       } catch (err) {
         console.error("Lỗi khi tải collections:", err);

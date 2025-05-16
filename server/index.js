@@ -4,7 +4,6 @@ const mongoose = require("mongoose");
 require("dotenv").config();
 const PORT = 5000;
 const app = express();
-const User = require("./src/models/User");
 
 app.use(cors());
 app.use(express.json());
@@ -22,9 +21,11 @@ const authRoutes = require("./src/routes/auth.routes");
 const otpRoutes = require("./src/routes/otp.routes")
 const movieRoutes = require("./src/routes/movie.routes");
 const favoriteRoutes = require("./src/routes/favorite.routes");
+const reviewRoutes = require("./src/routes/review.routes");
 
 app.use("/api", authRoutes);
 app.use("/api", otpRoutes)
 app.use("/api", movieRoutes);
 app.use("/api/favorites", favoriteRoutes);
+app.use("/api/review", reviewRoutes);
 app.listen(PORT, () => {});
