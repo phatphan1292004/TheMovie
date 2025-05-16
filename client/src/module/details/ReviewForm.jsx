@@ -18,7 +18,7 @@ const ReviewForm = ({slug}) => {
     }
 
     try {
-      const res = await axiosClient.post("/api/review/add-review", {
+      const res = await axiosClient.post("/review/add-review", {
         userId: user.id,
         name: user.name,
         slug,
